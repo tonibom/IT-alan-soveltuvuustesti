@@ -1,0 +1,9 @@
+version: '3.7'
+services:
+  soveltuvuustesti:
+    container_name: soveltuvuustesti
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - '1337:80'
