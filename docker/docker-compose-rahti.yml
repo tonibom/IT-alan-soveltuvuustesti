@@ -1,0 +1,9 @@
+version: '3.7'
+services:
+  soveltuvuustesti-rahti:
+    container_name: soveltuvuustesti-rahti
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile_rahti
+    ports:
+      - '8080:8080'

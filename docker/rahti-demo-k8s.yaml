@@ -1,0 +1,99 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: soveltuvuustesti
+  labels:
+    app: soveltuvuustesti
+spec:
+  selector:
+    matchLabels:
+      app: soveltuvuustesti
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: soveltuvuustesti
+        version: v1
+    spec:
+      containers:
+      - name: soveltuvuustesti
+        image: docker-registry.default.svc:5000/unique-name-for-test-project/soveltuvuustesti:1.0
+        ports:
+        - containerPort: 8080
+      restartPolicy: Always
+
+---
+
+#apiVersion: route.openshift.io/v1
+#kind: Route
+#metadata:
+#  name: soveltuvuustesti-route
+#spec:
+#  host: "soveltuvuustesti.rahtiapp.fi"
+#  port:
+#    port: 80
+#    targetPort: 8080
+#  to:
+#    kind: Service
+#    name: soveltuvuustesti-service
+#    selector:
+#      app: soveltuvuustesti
+#  tls:
+#    termination: passthrough
+#status:
+#  ingress: []
+
+# NOTE: NOT TESTED!
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    app: soveltuvuustesti
+  name: soveltuvuustesti-route
+  namespace: unique-name-for-test-project
+spec:
+  host: soveltuvuustesti.rahtiapp.fi
+  port:
+    targetPort: http
+  to:
+    kind: Service
+    name: soveltuvuustesti-service
+    weight: 100
+  wildcardPolicy: None
+status:
+  ingress:
+    - conditions:
+        - lastTransitionTime: '2023-03-06T14:52:28Z'
+          status: 'True'
+          type: Admitted
+      host: soveltuvuustesti.rahtiapp.fi
+      routerName: router
+      wildcardPolicy: None
+
+---
+
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: soveltuvuustesti-service
+# spec:
+#   selector:
+#     app: soveltuvuustesti
+#   ports:
+#     - name: non-tls
+#       port: 8080
+#       targetPort: 8080
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: soveltuvuustesti-service
+  labels:
+    app: soveltuvuustesti
+spec:
+  selector:
+    app: soveltuvuustesti
+  ports:
+    - port: 8080
+      name: http
+  type: NodePort

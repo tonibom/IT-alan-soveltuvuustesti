@@ -1,0 +1,21 @@
+# Build environment (for setting up React)
+FROM node:19-bullseye as build
+WORKDIR /app
+ENV PATH /app/node_modules/.bin:$PATH
+COPY ../package.json ./
+COPY ../package-lock.json ./
+RUN npm install -g npm@9.4.1 --silent
+RUN npm install --silent
+RUN npm ci
+RUN npm install react-scripts@3.4.1 -g --silent
+COPY . ./
+RUN npm run build
+
+# Production environment (to run the server)
+FROM nginx:1.23
+COPY docker/nginx.conf /etc/nginx/nginx.conf
+WORKDIR /app
+COPY --from=build /app/build .
+EXPOSE 8080:8080
+CMD ["nginx", "-g", "daemon off;"]
+
