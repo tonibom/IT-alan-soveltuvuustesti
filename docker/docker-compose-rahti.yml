@@ -2,8 +2,17 @@ version: '3.7'
 services:
   soveltuvuustesti-rahti:
     container_name: soveltuvuustesti-rahti
+    env_file: .env
     build:
       context: ..
       dockerfile: ./docker/Dockerfile_rahti
     ports:
       - '8080:8080'
+  soveltuvuustesti-db-rahti:
+    image: postgres:15
+    restart: always
+    container_name: soveltuvuustesti-db-rahti
+    env_file: .env
+    volumes:
+      - ./dbinit:/docker-entrypoint-initdb.d:ro
+
