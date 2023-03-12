@@ -12,7 +12,17 @@ COPY . ./
 RUN npm run build
 
 # Production environment (to run the server)
-FROM nginx:1.23
+FROM nginx:1.23-alpine
+
+# Install Python3 and psql client
+RUN apk add --update --no-cache python3 postgresql-client
+
+## Setup python & pip
+ENV PYTHONUNBUFFERED=1
+RUN ln -sf python3 /usr/bin/python && python3 -m ensurepip \
+    && pip3 install --no-cache --upgrade pip setuptools
+
+# Nginx config & Startup
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 WORKDIR /app
 COPY --from=build /app/build .
