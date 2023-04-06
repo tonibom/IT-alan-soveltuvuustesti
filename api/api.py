@@ -83,6 +83,34 @@ def set_locale():
     return response
 
 
+@app.route('/set-survey-start', methods=('POST',))
+def set_survey_start():
+    if not session.get('answer-id'):
+        abort(400)
+
+    dbid = session['answer-id'][0]
+
+    with get_dbcon() as dbcon:
+        with dbcon.cursor() as cur:
+            # Update survey starting timestamp (only the first time,
+            # even if the respondent decides to return to the start
+            # page).
+            survey_start_dt = datetime.datetime.now()
+            cur.execute(
+                """
+                UPDATE
+                    survey_answers
+                SET
+                    started = COALESCE(started, %s)
+                WHERE
+                    dbid = %s
+                ;""", (survey_start_dt, dbid))
+            dbcon.commit()
+
+    response = jsonify(success=True)
+    return response
+
+
 if __name__ == '__main__':
     app()
 
