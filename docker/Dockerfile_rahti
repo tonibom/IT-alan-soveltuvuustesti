@@ -11,21 +11,50 @@ RUN npm install react-scripts@3.4.1 -g --silent
 COPY . ./
 RUN npm run build
 
+
+
 # Production environment (to run the server)
-FROM nginx:1.23-alpine
+FROM alpine:3.17.2
+
+# Create directory for the app user
+RUN mkdir -p /home/app
+
+# create the app user
+RUN addgroup app && adduser -S -G app app -h /home/app
+
+# create the appropriate directories
+ENV HOME=/home/app
+ENV APP_HOME=/home/app/web
+RUN mkdir $APP_HOME $APP_HOME/api
+WORKDIR $APP_HOME
 
 # Install Python3 and psql client
 RUN apk add --update --no-cache python3 postgresql-client
 
 ## Setup python & pip
 ENV PYTHONUNBUFFERED=1
-RUN ln -sf python3 /usr/bin/python && python3 -m ensurepip \
-    && pip3 install --no-cache --upgrade pip setuptools
+ENV PYTHONDONTWRITEBYTECODE=1
 
-# Nginx config & Startup
-COPY docker/nginx.conf /etc/nginx/nginx.conf
-WORKDIR /app
-COPY --from=build /app/build .
-EXPOSE 8080:8080
-CMD ["nginx", "-g", "daemon off;"]
+#COPY --from=build /usr/src/app/wheels /wheels
+RUN ln -sf python3 /usr/bin/python \
+    && python3 -m ensurepip \
+    && pip3 install --upgrade pip
+
+COPY api/api.py api/api.py
+COPY api/requirements.txt api/requirements.txt
+COPY api/entrypoint.sh api/entrypoint.sh
+
+# Install PyPi packages
+RUN pip3 install -r ./api/requirements.txt
+
+# Copy the built application
+COPY --from=build /app/build ./build
+RUN chown -R app:app $APP_HOME
+
+# Not sure why this needs to be specified twice. For some reason it does
+# not work the first time. Problems with Docker COPY.
+COPY api/api.py api/api.py
+USER app
+
+ENTRYPOINT ["/home/app/web/api/entrypoint.sh"]
 
