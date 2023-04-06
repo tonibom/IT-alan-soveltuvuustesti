@@ -2,12 +2,16 @@ version: '3.7'
 services:
   soveltuvuustesti-rahti:
     container_name: soveltuvuustesti-rahti
+    command: gunicorn --bind 0.0.0.0:8081 'api.api:app'
     env_file: .env
     build:
       context: ..
       dockerfile: ./docker/Dockerfile_rahti
-    ports:
-      - '8080:8080'
+    expose:
+      - 8081
+    depends_on:
+      - soveltuvuustesti-db-rahti
+
   soveltuvuustesti-db-rahti:
     image: postgres:15
     restart: always
