@@ -60,7 +60,7 @@ def set_locale():
     if 'locale' not in request.json.keys():
         abort(400)
 
-    locale = request.args['locale']
+    locale = request.json['locale'].lower()
     dbid = session['answer-id'][0]
 
     if locale not in _SUPPORTED_LOCALES:
@@ -150,7 +150,7 @@ def survey_complete():
             # Grab the locale from the results: This is the language
             # the survey was finished in. In case it happens to be
             # different than the one in database, we update the row.
-            locale = results_json['answers']['language_selection']
+            locale = results_json['answers']['language_selection'].lower()
             del results_json['answers']['language_selection']
 
         if 'data_collection_consent' in results_json['answers']:
