@@ -20,3 +20,12 @@ services:
     volumes:
       - ./dbinit:/docker-entrypoint-initdb.d:ro
 
+  nginx:
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile_nginx
+    ports:
+      - 8080:8080
+    depends_on:
+      - soveltuvuustesti-rahti
+ 
