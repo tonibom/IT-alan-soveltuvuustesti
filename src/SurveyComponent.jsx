@@ -56,6 +56,29 @@ function CalculateResults(survey) {
     return total_scores;
 }
 
+function saveSurveyData(survey) {
+    if (survey.currentPageNo === 0) {
+        // When leaving the first page, send selected locale to server.
+        // Server will also take the timestamp of survey start the first
+        // time the respondent leaves the first page during that
+        // session.
+        var used_locale = survey.locale;
+        if (used_locale === "") {
+            // "en" being default means locale is empty.
+            used_locale = "en";
+        }
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/set-locale");
+        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+        xhr.send(JSON.stringify({"locale": used_locale}));
+
+        const xhr2 = new XMLHttpRequest();
+        xhr2.open("POST", "/set-survey-start");
+        xhr2.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+        xhr2.send(JSON.stringify({}));
+    }
+}
+
 function SurveyComponent() {
     // Create an empty model
     const survey = new Model(json);
@@ -127,6 +150,13 @@ function SurveyComponent() {
     // The survey result handling ends here.
     //##################################################################
 
+   // Send locale and survey start requests to server when leaving the
+   // first page.
+   survey.sendResultOnPageNext = true;
+   survey.onPartialSend.add((survey) => {
+        saveSurveyData(survey);
+    });
+
     // Locale is Finnish by default.
     survey.locale = "fi";
 
@@ -150,14 +180,6 @@ function SurveyComponent() {
       if (name === "language_selection") {
         // Update the locale in UI.
         survey.locale = value;
-        // Send the updated locale preference to server. Technically it
-        // would be better to try to send this only when exiting the
-        // first page as it does not change afterwards and the server
-        // would not need to assume what the default value is.
-        const xhr = new XMLHttpRequest();
-        xhr.open("POST", "/set-locale");
-        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        xhr.send(JSON.stringify({"locale": value}));
       }
     });
 

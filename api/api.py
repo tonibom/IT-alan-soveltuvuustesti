@@ -39,8 +39,8 @@ def index():
                 cur.execute(
                     """
                     INSERT INTO
-                        survey_answers (page_loaded, locale)
-                    VALUES (%s, 'fi')
+                        survey_answers (page_loaded)
+                    VALUES (%s)
                     RETURNING dbid
                     ;""", (page_loaded_dt,))
                 dbid = cur.fetchone()
