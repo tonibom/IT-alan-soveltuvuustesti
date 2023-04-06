@@ -20,7 +20,9 @@ const localization_texts = {
 }
 
 const skipped_questions = [
-    "language_selection"
+    "language_selection",
+    "data_collection_consent",
+    "email_address"
 ]
 
 function CalculateResults(survey) {
@@ -124,6 +126,14 @@ function SurveyComponent() {
     language_selection.defaultValue= "fi";
     language_selection.allowClear = false;
     language_selection.isRequired = true;
+    language_selection.hideNumber = true;
+
+    const data_collection_consent = survey.getQuestionByName("data_collection_consent");
+    data_collection_consent.hideNumber = true;
+    data_collection_consent.isRequired = true;
+    const email_address = survey.getQuestionByName("email_address");
+    email_address.hideNumber = true;
+
 
     // Update the survey language when value is changed.
     survey.onValueChanged.add((survey, { name, question, value }) => {

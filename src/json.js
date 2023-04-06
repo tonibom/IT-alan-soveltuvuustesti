@@ -23,6 +23,30 @@ export const json = {
                   text: "Suomi"
               }
           ],
+        }, {
+          "name": "data_collection_consent",
+          "title": {
+            "en": "I consent to my answers being stored.",
+            "fi": "Hyväksyn että syöttämäni tiedot tallennetaan."
+          },
+          "type": "boolean"
+        }, {
+          "name": "email_address",
+          "title": {
+            "en": "Optional: What is your email address?",
+            "fi": "Vapaaehtoinen: Syötä sähköpostiosoitteesi."
+          },
+          "type": "text",
+          "visibleIf": "{data_collection_consent}",
+          "validators": [
+            {
+              "type": "email",
+              "text": {
+                "en": "The email address is not valid.",
+                "fi": "Anna kelvollinen sähköpostiosoite."
+              }
+            }
+          ]
         }
       ]
     } //,
