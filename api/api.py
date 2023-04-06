@@ -3,13 +3,17 @@ import os
 
 import psycopg2
 
-from flask import Flask, jsonify, make_response, request, session
+from flask import (abort, Flask, jsonify, make_response, redirect,
+                  request, session)
 from flask_session import Session
+
 
 app = Flask(__name__, static_folder='../build', static_url_path='/')
 app.config['SESSION_PERMANENT'] = False
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
+
+_SUPPORTED_LOCALES = ('en', 'fi')
 
 
 def get_dbcon():
@@ -44,6 +48,38 @@ def index():
         session['answer-id'] = dbid
 
     response = make_response(app.send_static_file('index.html'))
+    return response
+
+
+@app.route('/set-locale', methods=('POST',))
+def set_locale():
+    if not session.get('answer-id'):
+        abort(400)
+
+    if 'locale' not in request.json.keys():
+        abort(400)
+
+    locale = request.args['locale']
+    dbid = session['answer-id'][0]
+
+    if locale not in _SUPPORTED_LOCALES:
+        abort(400)
+
+    with get_dbcon() as dbcon:
+        with dbcon.cursor() as cur:
+            # Update language.
+            cur.execute(
+                """
+                UPDATE
+                    survey_answers
+                SET
+                    locale = %s
+                WHERE
+                    dbid = %s
+                ;""", (locale, dbid))
+            dbcon.commit()
+
+    response = jsonify(success=True)
     return response
 
 
