@@ -19,6 +19,7 @@ services:
     env_file: .env
     volumes:
       - ./dbinit:/docker-entrypoint-initdb.d:ro
+      - postgres_data:/var/lib/postgresql/data/:rw
 
   nginx:
     build:
@@ -28,4 +29,8 @@ services:
       - 8080:8080
     depends_on:
       - soveltuvuustesti-rahti
- 
+
+
+volumes:
+  postgres_data:
+
