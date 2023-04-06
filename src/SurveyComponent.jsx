@@ -110,7 +110,17 @@ function SurveyComponent() {
 
         survey.completedHtml = "<h1 style=\"text-align:center;\">" + interest_locale + " " + title + "</h1>" + "<br/><p style=\"text-align:left;\">" + description + "<p/>";
 
-        // TODO: Send data to server if consent is given.
+        // Send data to server.
+        const finalResult = {
+            "data-collect-consent": survey.data["data_collection_consent"],
+            "email": survey.data["email_address"],
+            "answers": survey.data,
+            "result": max_key,
+        };
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/survey-complete");
+        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+        xhr.send(JSON.stringify(finalResult));
     });
 
     //##################################################################
