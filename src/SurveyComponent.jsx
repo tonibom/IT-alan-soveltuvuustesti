@@ -148,7 +148,16 @@ function SurveyComponent() {
     // Update the survey language when value is changed.
     survey.onValueChanged.add((survey, { name, question, value }) => {
       if (name === "language_selection") {
+        // Update the locale in UI.
         survey.locale = value;
+        // Send the updated locale preference to server. Technically it
+        // would be better to try to send this only when exiting the
+        // first page as it does not change afterwards and the server
+        // would not need to assume what the default value is.
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/set-locale");
+        xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+        xhr.send(JSON.stringify({"locale": value}));
       }
     });
 
