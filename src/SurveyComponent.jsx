@@ -19,39 +19,48 @@ const localization_texts = {
     }
 }
 
+const skipped_questions = [
+    "language_selection"
+]
+
+function CalculateResults(survey) {
+    // Initialize the scores for different programs to 0.
+    const total_scores = {};
+    for (let program in programs) {
+        total_scores[programs[program]["id"]] = 0;
+    }
+
+    const resultData = [];
+    for (const question_name in survey.data) {
+      const question = survey.getQuestionByName(question_name);
+      if (!!question) {
+        const question_and_answer = {
+          name: question_name,
+          answer: question.value,
+        };
+        if (skipped_questions.includes(question_name)) {
+            // Skipped questions do not have scores.
+            continue;
+        }
+        const answer_scores = scoring[question_name][question.value];
+        for (const score in answer_scores) {
+            // Index 0 is the ID of the study program, index 1 is the score.
+            total_scores[answer_scores[score][0]] += answer_scores[score][1];
+        }
+        resultData.push(question_and_answer);
+      }
+    }
+    console.log(JSON.stringify(total_scores));
+    return total_scores;
+}
+
 function SurveyComponent() {
     // Create an empty model
     const survey = new Model(json);
 
     survey.onComplete.add((survey) => {
-        // Initialize the scores for different programs to 0.
-        const total_scores = {};
-        for (let program in programs) {
-            total_scores[programs[program]["id"]] = 0;
-        }
 
-        const resultData = [];
-        for (const question_name in survey.data) {
-          const question = survey.getQuestionByName(question_name);
-          if (!!question) {
-            const question_and_answer = {
-              name: question_name,
-              answer: question.value,
-            };
-            if (question_name === "language_selection") {
-                // Language selection does not have a score.
-                continue;
-            }
-            const answer_scores = scoring[question_name][question.value];
-            for (const score in answer_scores) {
-                // Index 0 is the ID of the study program, index 1 is the score.
-                total_scores[answer_scores[score][0]] += answer_scores[score][1];
-            }
-            resultData.push(question_and_answer);
-          }
-        }
-        console.log(JSON.stringify(total_scores));
-
+        const total_scores = CalculateResults(survey);
         let max_score = 0;
         let max_key = "";
 
