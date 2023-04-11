@@ -16,6 +16,11 @@ const localization_texts = {
         "default": "Sinulle voisi sopia",
         "en": "You might be interested in",
         "fi": "Sinulle voisi sopia"
+    },
+    "read_more": {
+        "default": "Lue lisää",
+        "en": "Read more",
+        "fi": "Lue lisää"
     }
 }
 
@@ -104,6 +109,7 @@ function SurveyComponent() {
 
         let title = program[0]["program_name"];
         let description = program[0]["description"];
+        let link = program[0]["link"]
 
         let used_locale = survey.locale;
         if (used_locale === "") {
@@ -125,13 +131,26 @@ function SurveyComponent() {
             description  = description["default"];
         }
 
+        if (used_locale in link) {
+            link = link[used_locale];
+        } else {
+            link = link["default"];
+        }
+
         let interest_locale = localization_texts["summary_interest"]["default"];
         if (used_locale in localization_texts["summary_interest"]) {
             // Use locale if it exists.
             interest_locale = localization_texts["summary_interest"][used_locale];
         }
+        let read_more_locale = localization_texts["read_more"]["default"];
+        if (used_locale in localization_texts["read_more"]) {
+            // Use locale if it exists.
+            read_more_locale = localization_texts["read_more"][used_locale];
+        }
 
-        survey.completedHtml = "<h1 style=\"text-align:center;\">" + interest_locale + " " + title + "</h1>" + "<br/><p style=\"text-align:left;\">" + description + "<p/>";
+        // Not an ideal solution but what can you expect from a backend
+        // developer writing frontend in a hurry.
+        survey.completedHtml = "<h1 style=\"text-align:center;\">" + interest_locale + " " + title + "</h1>" + "<br/><p style=\"text-align: justify; padding: 100px; border: 2px solid black;\">" + description + "<br/><br/><a href=\"" + link + "\">" + read_more_locale + "</a><p/>";
 
         // Send data to server.
         const finalResult = {
