@@ -1,5 +1,8 @@
 # IT-alan-soveltuvuustesti
 
+## Update: 16.10.23
+Archived the repository as it is not actively maintained. If you are going to use this for anything, at the very least update the dependencies.
+
 ## Introduction
 Web-based aptitude self-test for high school students to see which ICT study program would be most fitting for them at University of Oulu. Developed as part of Research and Development Project course  (817612S) at the University of Oulu's Faculty of Information Technology and Electrical Engineering, department of Information Processing Science's master's programme.
 
